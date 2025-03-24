@@ -12,7 +12,7 @@ import AuthLayout from '@/layouts/auth-layout';
 export default function ConfirmPassword() {
     const { data, setData, post, processing, errors, reset } = useForm<Required<{ password: string }>>({
         password: '',
-    });
+    }); 
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
