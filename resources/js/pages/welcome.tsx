@@ -5,13 +5,14 @@ import Footer from "@/components/welcome-page/welcome-footer";
 import useSWR from 'swr'
 import axios, { AxiosResponse } from 'axios'
 import { useEffect, useState } from "react";
+import { ImageProvider } from "@/providers/ImageProvider";
 
 interface loggedInResponse {
     loggedIn: boolean
 }
 
 export default function Welcome() {
-    let { data: response } = useSWR<AxiosResponse<loggedInResponse>>("/api/user/loggedIn", axios.post, {refreshInterval: 500});
+    let { data: response } = useSWR<AxiosResponse<loggedInResponse>>("/api/user/loggedIn", axios.post, {refreshInterval: 5000});
     let [loggedIn, setLoggedIn] = useState<boolean | undefined>(undefined);
 
     useEffect(() => {
@@ -20,11 +21,14 @@ export default function Welcome() {
 
     return (
         <div className="min-h-screen flex flex-col bg-chess-light">
-            <Header isLoggedIn={loggedIn || false} />
+            <ImageProvider>
+                <Header isLoggedIn={loggedIn || false} />
                 <div className="flex flex-1">
                     <Sidebar />
                     <MainContent />
                 </div>
+            </ImageProvider>
+
             <Footer />
         </div>
     );

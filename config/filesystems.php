@@ -29,7 +29,11 @@ return [
     */
 
     'disks' => [
-
+        'public_site' => [
+            'driver' => 'local',
+            'root' => public_path(''),
+            'visibility' => 'public',
+        ],
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
