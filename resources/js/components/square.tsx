@@ -5,10 +5,8 @@ export default function Square({ square, piece, isLight }: {square: number, piec
   const { images } = useImageProvider();
   const pieceBlob = images[piece];
 
-  console.log(pieceBlob)
-  
 	return (
-        <div 
+        <div
             key={`${square}`}
             className={`${isLight ? 'bg-green-200' : 'bg-green-600'} flex items-center justify-center`}
           >

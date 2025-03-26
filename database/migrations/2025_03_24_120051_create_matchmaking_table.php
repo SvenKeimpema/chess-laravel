@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('matchmaking', function (Blueprint $table) {
             $table->id();
-            $table->foreign('id', "game_id")->references('id')->on('game');
-            $table->foreign('id', "user_id")->references('id')->on('users');
+            $table->foreignId("user_id")->nullable()->references("id")->on("users");
+            $table->foreignId("game_id")->nullable()->references("id")->on("game");
             $table->timestamps();
         });
     }
