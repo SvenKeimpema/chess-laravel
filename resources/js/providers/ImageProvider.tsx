@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react"
+import { createContext, useContext, useEffect, useState } from "react"
 import useSWR from "swr";
 import axios, { AxiosResponse } from "axios";
 import React, { ReactNode } from 'react';
@@ -29,7 +29,6 @@ export const ImageProvider: React.FC<ImageProviderProps> = ({ children }) => {
 
     useEffect(() => {        
         setImageBlobs(response?.data);
-        console.log(imageBlobs);
     }, [response])
 
     return (

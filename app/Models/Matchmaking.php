@@ -9,4 +9,8 @@ class Matchmaking extends Model {
     protected $primaryKey = "id";
     public $incrementing = true;
     public $timestamps = true;
+    protected $fillable = [
+        "game_id",
+        "user_id"
+    ];
 }

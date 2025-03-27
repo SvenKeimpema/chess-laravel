@@ -2,9 +2,9 @@ import Square from "./square"
 
 export default function ChessBoard({ size = 'medium' }: { size: 'small' | 'medium' | 'large' }) {
     const sizeClasses = {
-      small: 'w-48 h-48',
-      medium: 'w-64 h-64',
-      large: 'w-96 h-96'
+      small: 'w-50 h-50',
+      medium: 'w-100 h-100',
+      large: 'w-200 h-200 '
     }
     
     const squares = []
