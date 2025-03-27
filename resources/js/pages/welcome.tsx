@@ -12,8 +12,8 @@ interface loggedInResponse {
 }
 
 export default function Welcome() {
-    let { data: response } = useSWR<AxiosResponse<loggedInResponse>>("/api/user/loggedIn", axios.post, {refreshInterval: 5000});
-    let [loggedIn, setLoggedIn] = useState<boolean | undefined>(undefined);
+    const { data: response } = useSWR<AxiosResponse<loggedInResponse>>("/api/user/loggedIn", axios.post, {refreshInterval: 5000});
+    const [loggedIn, setLoggedIn] = useState<boolean | undefined>(undefined);
 
     useEffect(() => {
         setLoggedIn(response?.data.loggedIn);

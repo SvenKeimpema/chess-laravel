@@ -5,18 +5,18 @@ import ChessBoard from "@/components/chessboard";
 import { ImageProvider } from "@/providers/ImageProvider";
 
 export default function WaitScreen() {
-    let { data: response } = useSWR<AxiosResponse<number>>("/api/current-game", axios.get);
-    let [currentGame, setCurrentGame] = useState<number|undefined>(undefined);
+    const { data: response } = useSWR<AxiosResponse<number>>("/api/current-game", axios.get);
+    const [currentGame, setCurrentGame] = useState<number|undefined>(undefined);
 
     useEffect(() => {
         setCurrentGame(response?.data);
         if(currentGame != undefined) {
-            // @ts-ignore
-            Window.Echo.private(`Game.${currentGame}`).listen("PlayerJoinedGame", (e) => {
+            // @ts-expect-error we expect a error here since window.Echo is a javascript thing and cannot be loaded propperly otherwise
+            window.Echo.private(`Game.${currentGame}`).listen("PlayerJoinedGame", () => {
                 window.location.href = "/play/human"
             })
         }
-    }, [response])
+    }, [response, currentGame])
 
     const backToHome = () => {
         // home page will always be '/' so we don't need to overengineer this.

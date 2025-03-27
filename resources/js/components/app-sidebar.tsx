@@ -2,9 +2,7 @@ import { NavFooter } from '@/components/nav-footer';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
 import { BookOpen, Folder } from 'lucide-react';
-import AppLogo from './app-logo';
 
 const footerNavItems: NavItem[] = [
     {
