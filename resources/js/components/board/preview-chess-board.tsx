@@ -1,6 +1,11 @@
 import Square from "./square"
 
-export default function ChessBoard({ size = 'medium' }: { size: 'small' | 'medium' | 'large' }) {
+/**
+ * this board is only made to be previewed, this will not include anything in the future that will allow pieces to move(since its only for display)
+ * @param size size of the preview chess board
+ * @returns 
+ */
+export default function PreviewChessBoard({ size = 'medium' }: { size: 'small' | 'medium' | 'large' }) {
     const sizeClasses = {
       small: 'w-50 h-50',
       medium: 'w-100 h-100',
@@ -14,7 +19,6 @@ export default function ChessBoard({ size = 'medium' }: { size: 'small' | 'mediu
         const isLight = (row + col) % 2 === 0
         squares.push(
           <Square isLight={isLight} square={row*8+col} piece={0}>
-
           </Square>
         )
       }

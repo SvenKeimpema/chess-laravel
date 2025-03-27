@@ -21,7 +21,7 @@ enum MatchState {
 class MatchmakingController extends Controller {
     /**
      * This function will join or create a match based on if there is a match for us to actually join.
-     * This function will also send a message to the other user if the match is created and for him to 'join' the game(this basically just means 
+     * This function will also send a message to the other user if the match is created and for him to 'join' the game(this basically just means
      * he needs to change the view to the game board)
      * @return \Inertia\Response|\Illuminate\Http\RedirectResponse
      */
@@ -29,13 +29,16 @@ class MatchmakingController extends Controller {
         $current_match_state = $this->get_match_state();
         switch ($current_match_state) {
             case MatchState::PENDING:
-                return Inertia::render("matchmaking/wait-screen");    
+                return Inertia::render("matchmaking/wait-screen");
             case MatchState::FOUND:
+                // if we for some reason have not joined the game yet we want to send a event to the other client(else he simply won't be listening to this channel anymore)
+                $game_id = Matchmaking::where("user_id", Auth::user()->id)->first()->game_id;
+                PlayerJoinedGame::dispatch($game_id);
                 return redirect("/play/human");
         }
 
         $game_id = $this->find_match();
-        
+
         if(!$game_id) {
             $this->create_join_match();
             return Inertia::render("matchmaking/wait-screen");
@@ -53,7 +56,7 @@ class MatchmakingController extends Controller {
      */
     public function current_game() {
         return Matchmaking::where("user_id", Auth::user()->id)->first()->game_id;
-        
+
     }
 
     /**
@@ -82,7 +85,7 @@ class MatchmakingController extends Controller {
      }
 
     /**
-     * will return the id of the match if we can find one else we will just return 
+     * will return the id of the match if we can find one else we will just return
      * @return int|null
      */
     private function find_match(): int|null {

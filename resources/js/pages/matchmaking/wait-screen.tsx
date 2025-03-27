@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import useSWR from 'swr'
 import axios, { AxiosResponse } from 'axios'
-import ChessBoard from "@/components/chessboard";
+import PreviewChessBoard from "@/components/board/preview-chess-board";
 import { ImageProvider } from "@/providers/ImageProvider";
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
 
 export default function WaitScreen() {
     const { data: response } = useSWR<AxiosResponse<number>>("/api/current-game", axios.get);
@@ -11,15 +13,26 @@ export default function WaitScreen() {
     useEffect(() => {
         setCurrentGame(response?.data);
         if(currentGame != undefined) {
-            // @ts-expect-error we expect a error here since window.Echo is a javascript thing and cannot be loaded propperly otherwise
-            window.Echo.private(`Game.${currentGame}`).listen("PlayerJoinedGame", () => {
+            // @ts-expect-error pusher doesn't exist on window but we want it to
+            window.Pusher = Pusher
+            const echo = new Echo({
+                broadcaster: 'reverb',
+                key: import.meta.env.VITE_REVERB_APP_KEY,
+                wsHost: import.meta.env.VITE_REVERB_HOST,
+                wsPort: import.meta.env.VITE_REVERB_PORT ?? 80,
+                wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
+                forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
+                enabledTransports: ['ws', 'wss'],
+            });
+
+            // @ts-expect-error e can be anything
+            echo.private(`Game.${currentGame}`).listen("PlayerJoinedGame", (e) => {
                 window.location.href = "/play/human"
             })
         }
     }, [response, currentGame])
 
     const backToHome = () => {
-        // home page will always be '/' so we don't need to overengineer this.
         window.location.href = "/";
     }
 
@@ -28,7 +41,7 @@ export default function WaitScreen() {
             <div className="absolute bg-black opacity-30 w-full h-full z-0" />
             <div className="flex-grow flex items-center justify-center">
                 <ImageProvider>
-                    <ChessBoard size="large" />
+                    <PreviewChessBoard size="large" />
                 </ImageProvider>
             </div>
             <div className="absolute z-10 flex flex-col items-center justify-center">

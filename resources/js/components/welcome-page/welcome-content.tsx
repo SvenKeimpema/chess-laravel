@@ -1,4 +1,4 @@
-import ChessBoard from '../chessboard'
+import PreviewChessBoard from '../board/preview-chess-board'
 import GamePreview from '../game-preview'
 
 export default function MainContent() {
@@ -6,7 +6,6 @@ export default function MainContent() {
     <main className="flex-1 p-6">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column */}
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-lg shadow-md p-4">
               <h2 className="text-xl font-bold mb-4">Play Chess Online</h2>
@@ -22,6 +21,7 @@ export default function MainContent() {
               </div>
             </div>
             
+            {/* this might be something we do NOT want to do since it would be somewhat difficult to implement(depents on how far this project will go) */}
             <div className="bg-white rounded-lg shadow-md p-4">
               <h2 className="text-xl font-bold mb-4">Featured Games</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -39,12 +39,11 @@ export default function MainContent() {
             </div>
           </div>
           
-          {/* Right Column */}
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow-md p-4">
               <h2 className="text-xl font-bold mb-4">Daily Puzzle</h2>
               <div className="flex justify-center mb-4">
-                <ChessBoard size="small" />
+                <PreviewChessBoard size="small" />
               </div>
               <p className="text-sm mb-3">Black to move and win</p>
               <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-2 rounded">
