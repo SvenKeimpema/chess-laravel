@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
 class PieceBoard extends Model {
     protected $table = "piece_board";
     protected $primaryKey = "id";
+    protected $fillable = ["game_id", "piece", "board"];
     public $incrementing = true;
     public $timestamps = true;
 }
