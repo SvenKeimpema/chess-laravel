@@ -13,6 +13,12 @@ use Inertia\Inertia;
  * However please note that this matchmaking controller does not use any kind of checking on how good someone is, with this anybody can join anybody
  */
 class MatchmakingController extends Controller {
+    private BoardController $board;
+
+    function __construct() {
+        $this->board = new BoardController();
+    }
+
     /**
      * This function will join or create a match based on if there is a match for us to actually join.
      * This function will also send a message to the other user if the match is created and for him to 'join' the game(this basically just means
@@ -32,6 +38,8 @@ class MatchmakingController extends Controller {
 
         if(!$game_id) {
             $this->create_join_match();
+            // after creating and joining the match we need to setup the game board
+            $this->board->create();
             return Inertia::render("matchmaking/wait-screen");
         }
 
@@ -39,14 +47,6 @@ class MatchmakingController extends Controller {
         // we dispatch a event to the other user so that he also joins a game
         PlayerJoinedGame::dispatch($game_id);
         return redirect('/play/human');
-    }
-
-    /**
-     * gets the id of the game the user is currently in.
-     * @return int|null
-     */
-    public function current_game(): int|null {
-        return Matchmaking::where("user_id", Auth::user()->id)->first()->game_id;
     }
 
     /**
