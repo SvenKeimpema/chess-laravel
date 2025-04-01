@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import useSWR from 'swr'
 import axios, { AxiosResponse } from 'axios'
-import ChessBoard from "@/components/chessboard";
+import ChessBoard from "@/components/board/chessboard-preview";
 import { ImageProvider } from "@/providers/ImageProvider";
 
 export default function WaitScreen() {

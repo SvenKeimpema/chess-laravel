@@ -8,12 +8,6 @@ use App\Models\Matchmaking;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
-enum MatchState {
-    case NONE;
-    case PENDING;
-    case FOUND;
-}
-
 /**
  * This is the controller that will handle people joining matches and allows us to create some form of 1v1 multiplayer chess match
  * However please note that this matchmaking controller does not use any kind of checking on how good someone is, with this anybody can join anybody
@@ -21,21 +15,21 @@ enum MatchState {
 class MatchmakingController extends Controller {
     /**
      * This function will join or create a match based on if there is a match for us to actually join.
-     * This function will also send a message to the other user if the match is created and for him to 'join' the game(this basically just means 
+     * This function will also send a message to the other user if the match is created and for him to 'join' the game(this basically just means
      * he needs to change the view to the game board)
      * @return \Inertia\Response|\Illuminate\Http\RedirectResponse
      */
-    public function index() {
+    public function index(): \Inertia\Response|\Illuminate\Http\RedirectResponse {
         $current_match_state = $this->get_match_state();
         switch ($current_match_state) {
             case MatchState::PENDING:
-                return Inertia::render("matchmaking/wait-screen");    
+                return Inertia::render("matchmaking/wait-screen");
             case MatchState::FOUND:
                 return redirect("/play/human");
         }
 
         $game_id = $this->find_match();
-        
+
         if(!$game_id) {
             $this->create_join_match();
             return Inertia::render("matchmaking/wait-screen");
@@ -51,9 +45,8 @@ class MatchmakingController extends Controller {
      * gets the id of the game the user is currently in.
      * @return int|null
      */
-    public function current_game() {
+    public function current_game(): int|null {
         return Matchmaking::where("user_id", Auth::user()->id)->first()->game_id;
-        
     }
 
     /**
@@ -61,7 +54,7 @@ class MatchmakingController extends Controller {
      * but no one else is connected to the match and there is FOUND where there is someone else connected to the match.
      * @return MatchState
      */
-    private function get_match_state() {
+    private function get_match_state(): MatchState {
         // we first need to get the game we are in
         $match = Matchmaking::where("user_id", Auth::user()->id)->first();
         if(!$match) return MatchState::NONE;
@@ -75,14 +68,14 @@ class MatchmakingController extends Controller {
      * @return bool
      */
 
-     private function existing_match() {
+     private function existing_match(): bool  {
         $matchmaking = Matchmaking::where("user_id", Auth::user()->id)->first();
 
         return $matchmaking != null;
      }
 
     /**
-     * will return the id of the match if we can find one else we will just return 
+     * will return the id of the match if we can find one else we will just return
      * @return int|null
      */
     private function find_match(): int|null {
@@ -118,4 +111,10 @@ class MatchmakingController extends Controller {
             "user_id" => Auth::user()->id
         ]);
     }
+}
+
+enum MatchState {
+    case NONE;
+    case PENDING;
+    case FOUND;
 }
