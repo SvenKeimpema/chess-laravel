@@ -1,8 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\MoveGenerator;
-
-
+namespace App\Http\Controllers\PieceMovement\Pieces;
 
 class Pawn implements Piece {
     private int $aFile;

@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Pieces;
 
-use App\Http\Controllers\MoveGenerator\King;
+use App\Http\Controllers\PieceMovement\Pieces\King;
 
 test("all king moves generate properly", function() {
     $king = new King();

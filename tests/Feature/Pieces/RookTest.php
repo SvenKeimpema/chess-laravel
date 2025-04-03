@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Pieces;
 
-use App\Http\Controllers\MoveGenerator\Rook;
+use App\Http\Controllers\PieceMovement\Pieces\Rook;
 
 test("check that rook diagnals are set correctly", function() {
     $rook = new Rook();

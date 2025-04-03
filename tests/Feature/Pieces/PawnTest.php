@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Pieces;
 
-use App\Http\Controllers\MoveGenerator\Pawn;
+use App\Http\Controllers\PieceMovement\Pieces\Pawn;
 
 test("pawn generates correct forward moves for white", function () {
     $pawn = new Pawn();

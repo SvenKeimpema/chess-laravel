@@ -55,7 +55,6 @@ class BoardController extends Controller {
         for($row = 0; $row < 8; $row++) {
             $board[$row] = [];
             for($col = 0; $col < 8; $col++) {
-                $piece = 0;
                 foreach($piece_boards as $piece_board) {
                     $bb = $piece_board->board;
                     if(($bb & (1 << ($row * 8 + $col))) !== 0) {
@@ -66,6 +65,38 @@ class BoardController extends Controller {
 
                 if(!isset($board[$row][$col])) {
                     $board[$row][$col] = -1;
+                }
+            }
+        }
+
+        return $board;
+    }
+
+    /**
+    * Returns an array of bitboards representing the current board state.
+    * Each bitboard corresponds to a specific piece type, where each bit
+    * in the bitboard represents the presence of that piece on the board.
+    *
+    * The array indices represent the piece types:
+    * 0-5: white pieces (pawn, knight, bishop, rook, queen, king)
+    * 6-11: black pieces (pawn, knight, bishop, rook, queen, king)
+    *
+    * @return array An array of 12 integers, each representing a bitboard
+    *               for a specific piece type.
+    */
+    public function get_bbs(): array {
+        $current_game_id = $this->game->current_game();
+        $piece_boards = PieceBoard::where("game_id", $current_game_id)->get();
+        $board = array_fill(0, 12, 0);
+        for($row = 0; $row < 8; $row++) {
+            $board[$row] = [];
+            for($col = 0; $col < 8; $col++) {
+                foreach($piece_boards as $piece_board) {
+                    $bb = $piece_board->board;
+                    if(($bb & (1 << ($row * 8 + $col))) !== 0) {
+                        $board[$piece_board->piece] |= (1 << ($row * 8 + $col));
+                        break;
+                    }
                 }
             }
         }

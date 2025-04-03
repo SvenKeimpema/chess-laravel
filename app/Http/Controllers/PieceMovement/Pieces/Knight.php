@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\MoveGenerator;
+namespace App\Http\Controllers\PieceMovement\Pieces;
 
 class Knight implements Piece {
     private int $aFile = 0;
