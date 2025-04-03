@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Pieces;
 
-use App\Http\Controllers\MoveGenerator\Knight;
+use App\Http\Controllers\PieceMovement\Pieces\Knight;
 
 test("knight generates correct moves from center of the board", function () {
     $knight = new Knight();

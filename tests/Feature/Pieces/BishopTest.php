@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Pieces;
 
-use App\Http\Controllers\MoveGenerator\Bishop;
+use App\Http\Controllers\PieceMovement\Pieces\Bishop;
 
 test("bishop moves along the right diagnals", function() {
     $bishop = new Bishop();

@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Http\Controllers\MoveGenerator;
+namespace App\Http\Controllers\PieceMovement\Pieces;
+
 
 class King implements Piece {
     private int $aFile;

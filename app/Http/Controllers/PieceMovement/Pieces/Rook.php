@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\MoveGenerator;
+namespace App\Http\Controllers\PieceMovement\Pieces;
 
 class Rook implements Piece {
     function generateMoves(int $sq, bool $side, int $blocks, int $enemies): int {
