@@ -1,35 +1,14 @@
-import Header from "@/components/welcome-page/welcome-header";
-import Sidebar from "@/components/welcome-page/welcome-sidebar";
-import MainContent from "@/components/welcome-page/welcome-content";
-import Footer from "@/components/welcome-page/welcome-footer";
-import useSWR from 'swr'
-import axios, { AxiosResponse } from 'axios'
-import { useEffect, useState } from "react";
-import { ImageProvider } from "@/providers/ImageProvider";
-
-interface loggedInResponse {
-    loggedIn: boolean
-}
+import MainContent from '@/components/welcome-page/welcome-content';
+import { ImageProvider } from '@/providers/ImageProvider';
 
 export default function Welcome() {
-    const { data: response } = useSWR<AxiosResponse<loggedInResponse>>("/api/user/loggedIn", axios.post, {refreshInterval: 5000});
-    const [loggedIn, setLoggedIn] = useState<boolean | undefined>(undefined);
-
-    useEffect(() => {
-        setLoggedIn(response?.data.loggedIn);
-    }, [response])
-
     return (
-        <div className="min-h-screen flex flex-col bg-chess-light">
+        <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <ImageProvider>
-                <Header isLoggedIn={loggedIn || false} />
-                <div className="flex flex-1">
-                    <Sidebar />
+                <div className="flex items-center justify-center">
                     <MainContent />
                 </div>
             </ImageProvider>
-
-            <Footer />
         </div>
     );
 }

@@ -14,9 +14,11 @@ use Inertia\Inertia;
  */
 class MatchmakingController extends Controller {
     private BoardController $board;
+    private GameController $game;
 
     function __construct() {
         $this->board = new BoardController();
+        $this->game = new GameController();
     }
 
     /**
@@ -44,6 +46,7 @@ class MatchmakingController extends Controller {
         }
 
         $this->join_match($game_id);
+        $this->game->create_random_side($game_id);
         // we dispatch a event to the other user so that he also joins a game
         PlayerJoinedGame::dispatch($game_id);
         return redirect('/play/human');
@@ -70,7 +73,6 @@ class MatchmakingController extends Controller {
 
      private function existing_match(): bool  {
         $matchmaking = Matchmaking::where("user_id", Auth::user()->id)->first();
-
         return $matchmaking != null;
      }
 

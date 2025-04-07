@@ -24,6 +24,8 @@ class BoardController extends Controller {
             [ 3,  1,  2,  4,  5,  2,  1,  3]
         ];
 
+        $piece_boards = [];
+
         for($row = 0; $row < 8; $row++) {
             for($col = 0; $col < 8; $col++) {
                 $piece = $board[$row][$col];
@@ -32,13 +34,18 @@ class BoardController extends Controller {
                     continue;
                 }
 
-                $piece_board = new PieceBoard();
+                if (!isset($piece_boards[$piece])) {
+                    $piece_boards[$piece] = new PieceBoard();
+                    $piece_boards[$piece]->game_id = $current_game_id;
+                    $piece_boards[$piece]->piece = $piece;
+                }
 
-                $piece_board->game_id = $current_game_id;
-                $piece_board->board = 1 << ($row * 8 + $col);
-                $piece_board->piece = $piece;
-                $piece_board->save();
+                $piece_boards[$piece]->board |= 1 << ($row * 8 + $col);
             }
+        }
+
+        foreach($piece_boards as $piece_board) {
+            $piece_board->save();
         }
     }
 
@@ -85,17 +92,21 @@ class BoardController extends Controller {
     *               for a specific piece type.
     */
     public function get_bbs(): array {
+        $start = 0;
+        $end = 5;
+
         $current_game_id = $this->game->current_game();
-        $piece_boards = PieceBoard::where("game_id", $current_game_id)->get();
+        $piece_boards = PieceBoard::where("game_id", $current_game_id)->where("piece", ">=", $start)->where("piece", "<=", $end)
+                            ->get();
+
         $board = array_fill(0, 12, 0);
+
         for($row = 0; $row < 8; $row++) {
-            $board[$row] = [];
             for($col = 0; $col < 8; $col++) {
                 foreach($piece_boards as $piece_board) {
                     $bb = $piece_board->board;
                     if(($bb & (1 << ($row * 8 + $col))) !== 0) {
-                        $board[$piece_board->piece] |= (1 << ($row * 8 + $col));
-                        break;
+                        $board[$piece_board->piece] |= 1 << ($row * 8 + $col);
                     }
                 }
             }
