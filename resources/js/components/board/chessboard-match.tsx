@@ -13,15 +13,23 @@ const sizeClasses = {
 };
 
 export default function ChessBoard({ size = 'medium' }: ChessBoardProps) {
-    const { board } = useBoardProvider();
+    const { board, moves } = useBoardProvider();
     const [selectedSquare, setSelectedSquare] = useState<number | null>(null);
+    const [highlightedSquares, setHighlightedSquares] = useState<
+        number[] | null
+    >(null);
 
     const handleSquareClick = (square: number) => {
         const row = Math.floor(square / 8);
         const col = square % 8;
         const piece = board[row][col];
+        const hSquares: number[] = [];
         if (piece !== -1) {
             setSelectedSquare(square);
+            moves.forEach((move) => {
+                if (move.start == square) hSquares.push(move.end);
+            });
+            setHighlightedSquares(hSquares);
         }
     };
 
@@ -31,7 +39,7 @@ export default function ChessBoard({ size = 'medium' }: ChessBoardProps) {
             const isLight = (row + col) % 2 === 0;
             const piece = board[row]?.[col] || 0;
             const square = row * 8 + col;
-
+            const highlighted = highlightedSquares?.includes(square);
             squares.push(
                 <Square
                     key={square}
@@ -40,6 +48,7 @@ export default function ChessBoard({ size = 'medium' }: ChessBoardProps) {
                     square={square}
                     piece={piece}
                     isSelected={selectedSquare === square}
+                    isHighLighted={highlighted || false}
                 />,
             );
         }

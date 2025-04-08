@@ -22555,6 +22555,16 @@ namespace Illuminate\Http {
         /**
          * 
          *
+         * @see \Inertia\ServiceProvider::registerRequestMacro()
+         * @static 
+         */
+        public static function session()
+        {
+            return \Illuminate\Http\Request::session();
+        }
+        /**
+         * 
+         *
          * @see \Illuminate\Foundation\Providers\FoundationServiceProvider::registerRequestValidation()
          * @param array $rules
          * @param mixed $params
