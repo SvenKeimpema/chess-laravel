@@ -11,6 +11,24 @@ class BoardController extends Controller {
         $this->game = new GameController();
     }
 
+    /**
+    * Updates the board state by setting the bitboard for a specific piece.
+    *
+    * @param int $bb The bitboard representing the new position of the piece.
+    * @param int $piece The piece identifier (0-5 for white pieces, 6-11 for black pieces).
+    * @return void
+    */
+    public function update(int $bb, int $piece): void {
+        $game_id = $this->game->current_game();
+        PieceBoard::where("piece", $piece)->where("game_id", $game_id)->update(["board" => $bb]);
+    }
+
+    /**
+    * Initializes the board state for a new game.
+    * Sets up the initial positions of all pieces on the board.
+    *
+    * @return void
+    */
     public function create(): void {
         $current_game_id = $this->game->current_game();
         $board = [
@@ -92,12 +110,8 @@ class BoardController extends Controller {
     *               for a specific piece type.
     */
     public function get_bbs(): array {
-        $start = 0;
-        $end = 5;
-
         $current_game_id = $this->game->current_game();
-        $piece_boards = PieceBoard::where("game_id", $current_game_id)->where("piece", ">=", $start)->where("piece", "<=", $end)
-                            ->get();
+        $piece_boards = PieceBoard::where("game_id", $current_game_id)->get();
 
         $board = array_fill(0, 12, 0);
 

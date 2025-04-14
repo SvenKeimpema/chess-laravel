@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\PieceMovement\GameStatus;
 use App\Models\GameTurn;
 use App\Models\Matchmaking;
 use Auth;
+use Illuminate\Http\JsonResponse;
 use PHPUnit\Exception;
 
 class GameController {
@@ -16,37 +18,55 @@ class GameController {
         return Matchmaking::where("user_id", Auth::user()->id)->first()->game_id;
     }
 
+    public function current_turn(): bool {
+        $game_id = $this->current_game();
+        $current_turn = GameTurn::where("game_id", $game_id)->first();
+        return $current_turn->turn == Auth::user()->id;
+    }
+
     /**
     * gets the current side of the game(white to move or black to move)
     * this does only work if the user is currently inside a game
-    * @return int|null
+    * @return bool
     */
     public function current_side(): bool {
         $game_id = $this->current_game();
         $current_turn = GameTurn::where("game_id", $game_id)->first();
-        return $current_turn->side;
+        return $current_turn->side == 1;
+    }
+
+    public function switch_side(): void {
+        $game_id = $this->current_game();
+        $current_turn = GameTurn::where("game_id", $game_id)->first();
+        $users = Matchmaking::where("game_id", $game_id)->get();
+        $user1_id = $users[0]->user_id;
+        $user2_id = $users[1]->user_id;
+
+        GameTurn::where("game_id", $game_id)->update([
+            "side" => $current_turn->side == 1 ? 0 : 1,
+            "turn" => $current_turn->turn == $user1_id ? $user2_id : $user1_id
+        ]);
     }
 
     /**
-    * Assigns a random starting side to one of the two users in a game and creates a new game turn.
-    *
-    * This function generates a random number (either 0 or 1) to determine which user will start the game.
-    * It then creates a new game turn record in the database with the game ID, the user who will take the first turn,
-    * and a flag indicating that the side has been assigned.
-    *
-    * @param int $game_id The ID of the game for which the turn is being created.
-    * @param int $user1 The ID of the first user.
-    * @param int $user2 The ID of the second user.
-    *
-    * @return void
-    */
+     * Assigns a random starting side to one of the two users in a game and creates a new game turn.
+     *
+     * This function generates a random number (either 0 or 1) to determine which user will start the game.
+     * It then creates a new game turn record in the database with the game ID, the user who will take the first turn,
+     * and a flag indicating that the side has been assigned.
+     *
+     * @param int $game_id The ID of the game for which the turn is being created.
+         *
+     * @return void
+     * @throws \Exception
+     */
     public function create_random_side(int $game_id): void {
         $users = Matchmaking::where("game_id", $game_id)->get();
 
         // Assuming there are exactly 2 users in the matchmaking for the given game_id
         if ($users->count() == 2) {
-            $user1_id = $users[0]->id;
-            $user2_id = $users[1]->id;
+            $user1_id = $users[0]->user_id;
+            $user2_id = $users[1]->user_id;
 
             // You can now use $user1_id and $user2_id as needed
             $side = rand(0, 1);
@@ -57,7 +77,7 @@ class GameController {
             ]);
         } else {
             // Handle the case where there are not exactly 2 users
-            throw new Exception("Expected exactly 2 users for game_id: $game_id");
+            throw new \Exception("Expected exactly 2 users for game_id: $game_id");
         }
     }
 }

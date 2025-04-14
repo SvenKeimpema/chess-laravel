@@ -33,10 +33,12 @@ class Pawn implements Piece {
         $blocking_pieces = $blocks | $enemies;
         if($side) {
             // first we want to check if there is a piece on the first square foward
+            if($sq-8 < 0) return $bb;
             $move1 = 1 << ($sq - 8);
             if(($blocking_pieces & $move1) !== 0) return $bb;
             $bb |= $move1;
 
+            if($sq-16 < 0) return $bb;
             $move2 = 1 << ($sq - 16);
             if($sq <= 47 || $sq >= 56) return $bb;
             if(($blocking_pieces & $move2) !== 0) return $bb;
@@ -44,13 +46,16 @@ class Pawn implements Piece {
 
             return $bb;
         } else {
+            if($sq+8>63) return $bb;
             $move1 = 1 << ($sq + 8);
             if(($blocking_pieces & $move1) !== 0) return $bb;
             $bb |= $move1;
 
+            if($sq+16>63) return $bb;
             $move2 = 1 << ($sq + 16);
             if($sq <= 7 && $sq >= 16) return $bb;
             if(($blocking_pieces & $move2) !== 0) return $bb;
+            $bb |= $move2;
             return $bb;
         }
     }
@@ -66,18 +71,26 @@ class Pawn implements Piece {
     private function generateAttackingMoves(int $sq, bool $side, int $blocks, int $enemies): int {
         $bb = 0;
 
-        if($side) {
-            $move1 = 1 << ($sq - 9);
-            if(($enemies & $move1) !== 0 && ($move1 & $this->hFile) === 0) $bb |= $move1;
+        if ($side) {
+            if ($sq >= 9) {
+                $move1 = 1 << ($sq - 9);
+                if (($enemies & $move1) !== 0 && ($move1 & $this->hFile) === 0) $bb |= $move1;
+            }
 
-            $move2 = 1 << ($sq - 7);
-            if(($enemies & $move2) !== 0 && ($move2 & $this->aFile) === 0) $bb |= $move2;
+            if ($sq >= 7) {
+                $move2 = 1 << ($sq - 7);
+                if (($enemies & $move2) !== 0 && ($move2 & $this->aFile) === 0) $bb |= $move2;
+            }
         } else {
-            $move1 = 1 << ($sq + 9);
-            if(($enemies & $move1) !== 0 && ($move1 & $this->aFile) === 0) $bb |= $move1;
+            if ($sq <= 54) {
+                $move1 = 1 << ($sq + 9);
+                if (($enemies & $move1) !== 0 && ($move1 & $this->aFile) === 0) $bb |= $move1;
+            }
 
-            $move2 = 1 << ($sq + 7);
-            if(($enemies & $move2) !== 0 && ($move2 & $this->hFile) === 0) $bb |= $move2;
+            if ($sq <= 56) {
+                $move2 = 1 << ($sq + 7);
+                if (($enemies & $move2) !== 0 && ($move2 & $this->hFile) === 0) $bb |= $move2;
+            }
         }
 
         return $bb;
