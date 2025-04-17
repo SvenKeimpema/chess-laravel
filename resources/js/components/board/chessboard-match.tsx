@@ -1,6 +1,9 @@
 import { useBoardProvider } from '@/providers/BoardProvider';
 import Square from '../square';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useDeepCompareEffect } from '@/hooks/use-deep-compare-effect';
+import useStatus from '@/hooks/use-status';
 
 interface ChessBoardProps {
     size: 'small' | 'medium' | 'large';
@@ -13,17 +16,55 @@ const sizeClasses = {
 };
 
 export default function ChessBoard({ size = 'medium' }: ChessBoardProps) {
-    const { board, moves } = useBoardProvider();
+    const { board, moves, refreshBoard, refreshMoves } = useBoardProvider();
+
+    const { status, refreshStatus } = useStatus();
     const [selectedSquare, setSelectedSquare] = useState<number | null>(null);
     const [highlightedSquares, setHighlightedSquares] = useState<
         number[] | null
     >(null);
+
+    useDeepCompareEffect(() => {
+        refreshMoves();
+        refreshStatus();
+        setSelectedSquare(null);
+        setHighlightedSquares([]);
+    }, [board]);
+
+    const endGame = async () => {
+        await axios.post('/api/end-game');
+    };
+
+    useEffect(() => {
+        if (status.win || status.draw) {
+            endGame();
+        }
+    }, [status]);
 
     const handleSquareClick = (square: number) => {
         const row = Math.floor(square / 8);
         const col = square % 8;
         const piece = board[row][col];
         const hSquares: number[] = [];
+
+        if (highlightedSquares && highlightedSquares.includes(square)) {
+            setSelectedSquare(null);
+            setHighlightedSquares([]);
+
+            axios
+                .post('/api/moves/make', {
+                    startSquare: selectedSquare,
+                    endSquare: square,
+                })
+                .then(() => {
+                    refreshBoard();
+                    refreshStatus();
+                    refreshMoves();
+                });
+
+            return;
+        }
+
         if (piece !== -1) {
             setSelectedSquare(square);
             moves.forEach((move) => {
@@ -53,12 +94,13 @@ export default function ChessBoard({ size = 'medium' }: ChessBoardProps) {
             );
         }
     }
-
     return (
-        <div
-            className={`${sizeClasses[size]} grid grid-cols-8 grid-rows-8 border-2 border-gray-800`}
-        >
-            {squares}
+        <div className="relative">
+            <div
+                className={`${sizeClasses[size]} grid grid-cols-8 grid-rows-8 border-2 border-gray-800`}
+            >
+                {squares}
+            </div>
         </div>
     );
 }

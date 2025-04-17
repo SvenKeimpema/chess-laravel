@@ -6,6 +6,8 @@ import React, { ReactNode } from 'react';
 interface BoardProviderContextType {
     board: number[][];
     moves: MoveResponse[];
+    refreshBoard(): void;
+    refreshMoves(): void;
 }
 
 interface MoveResponse {
@@ -32,15 +34,17 @@ interface BoardProviderProps {
 }
 
 export const BoardProvider: React.FC<BoardProviderProps> = ({ children }) => {
-    const { data: response } = useSWR<AxiosResponse<number[][]>>(
-        '/api/board/data',
-        axios.get,
-    );
+    const { data: response, mutate: refreshBoard } = useSWR<
+        AxiosResponse<number[][]>
+    >('/api/board/data', axios.get, { refreshInterval: 3000 });
 
-    const { data: moveResponse } = useSWR<AxiosResponse<MoveResponse[]>>(
-        '/api/moves/get',
-        axios.get,
-    );
+    const { data: moveResponse, mutate: refreshMoves } = useSWR<
+        AxiosResponse<MoveResponse[]>
+    >('/api/moves/get', axios.get, {
+        revalidateOnMount: false,
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+    });
 
     const [boardData, setBoardData] = useState<number[][] | undefined>(
         undefined,
@@ -63,6 +67,8 @@ export const BoardProvider: React.FC<BoardProviderProps> = ({ children }) => {
             value={{
                 board: boardData || [],
                 moves: moveData || [],
+                refreshBoard: refreshBoard,
+                refreshMoves: refreshMoves,
             }}
         >
             <div>{children}</div>

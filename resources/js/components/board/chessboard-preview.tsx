@@ -21,8 +21,9 @@ export default function ChessBoard({
                     onClick={() => {}}
                     isLight={isLight}
                     square={row * 8 + col}
-                    piece={0}
+                    piece={-1}
                     isSelected={false}
+                    isHighLighted={false}
                 />,
             );
         }
