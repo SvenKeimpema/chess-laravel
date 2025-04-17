@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\PieceBoard;
+use App\Models\UserGames;
+use Auth;
 
 class BoardController extends Controller {
     private GameController $game;
@@ -12,25 +14,12 @@ class BoardController extends Controller {
     }
 
     /**
-    * Updates the board state by setting the bitboard for a specific piece.
-    *
-    * @param int $bb The bitboard representing the new position of the piece.
-    * @param int $piece The piece identifier (0-5 for white pieces, 6-11 for black pieces).
-    * @return void
-    */
-    public function update(int $bb, int $piece): void {
-        $game_id = $this->game->current_game();
-        PieceBoard::where("piece", $piece)->where("game_id", $game_id)->update(["board" => $bb]);
-    }
-
-    /**
     * Initializes the board state for a new game.
     * Sets up the initial positions of all pieces on the board.
     *
     * @return void
     */
-    public function create(): void {
-        $current_game_id = $this->game->current_game();
+    public function create(int $game_id): void {
         $board = [
             [ 9,  7,  8, 10, 11,  8,  7,  9],
             [ 6,  6,  6,  6,  6,  6,  6,  6],
@@ -54,7 +43,7 @@ class BoardController extends Controller {
 
                 if (!isset($piece_boards[$piece])) {
                     $piece_boards[$piece] = new PieceBoard();
-                    $piece_boards[$piece]->game_id = $current_game_id;
+                    $piece_boards[$piece]->game_id = $game_id;
                     $piece_boards[$piece]->piece = $piece;
                 }
 
@@ -74,8 +63,8 @@ class BoardController extends Controller {
     * @return array 2D array of integers
     */
     public function get(): array {
-        $current_game_id = $this->game->current_game();
-        $piece_boards = PieceBoard::where("game_id", $current_game_id)->get();
+        $game_id = UserGames::where("user_id", Auth::user()->id)->latest()->first()->game_id;
+        $piece_boards = PieceBoard::where("game_id", $game_id)->get();
         $board = [];
         for($row = 0; $row < 8; $row++) {
             $board[$row] = [];
@@ -90,38 +79,6 @@ class BoardController extends Controller {
 
                 if(!isset($board[$row][$col])) {
                     $board[$row][$col] = -1;
-                }
-            }
-        }
-
-        return $board;
-    }
-
-    /**
-    * Returns an array of bitboards representing the current board state.
-    * Each bitboard corresponds to a specific piece type, where each bit
-    * in the bitboard represents the presence of that piece on the board.
-    *
-    * The array indices represent the piece types:
-    * 0-5: white pieces (pawn, knight, bishop, rook, queen, king)
-    * 6-11: black pieces (pawn, knight, bishop, rook, queen, king)
-    *
-    * @return array An array of 12 integers, each representing a bitboard
-    *               for a specific piece type.
-    */
-    public function get_bbs(): array {
-        $current_game_id = $this->game->current_game();
-        $piece_boards = PieceBoard::where("game_id", $current_game_id)->get();
-
-        $board = array_fill(0, 12, 0);
-
-        for($row = 0; $row < 8; $row++) {
-            for($col = 0; $col < 8; $col++) {
-                foreach($piece_boards as $piece_board) {
-                    $bb = $piece_board->board;
-                    if(($bb & (1 << ($row * 8 + $col))) !== 0) {
-                        $board[$piece_board->piece] |= 1 << ($row * 8 + $col);
-                    }
                 }
             }
         }

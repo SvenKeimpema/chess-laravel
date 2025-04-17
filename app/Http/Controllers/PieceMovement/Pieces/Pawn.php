@@ -16,8 +16,7 @@ class Pawn implements Piece {
     }
 
     function generateMoves(int $sq, bool $side, int $blocks, int $enemies): int {
-        return $this->generateFowardMoves($sq, $side, $blocks, $enemies) |
-        $this->generateAttackingMoves($sq, $side, $blocks, $enemies);
+        return $this->generateFowardMoves($sq, $side, $blocks, $enemies) | $this->generateAttackingMoves($sq, $side, $blocks, $enemies);
     }
 
     /**
@@ -70,6 +69,7 @@ class Pawn implements Piece {
     **/
     private function generateAttackingMoves(int $sq, bool $side, int $blocks, int $enemies): int {
         $bb = 0;
+          
 
         if ($side) {
             if ($sq >= 9) {

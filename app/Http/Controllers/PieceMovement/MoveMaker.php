@@ -2,29 +2,26 @@
 
 namespace App\Http\Controllers\PieceMovement;
 
-use App\Http\Controllers\BoardController;
-use App\Http\Controllers\GameController;
-
 class MoveMaker {
-    private GameController $gameController;
-    private BoardController $boardController;
     private MoveGenerator $moveGenerator;
+    private PieceSide $pieceSide;
+    private Board $board;
 
     function __construct() {
-        $this->boardController = new BoardController();
         $this->moveGenerator = new MoveGenerator();
-        $this->gameController = new GameController();
+        $this->pieceSide = new PieceSide();
+        $this->board = new Board();
     }
 
     public function reset(array $bbs): void {
         foreach($bbs as $piece => $bb) {
             $this->boardController->update($bb, $piece);
         }
-        $this->gameController->switch_side();
+        $this->pieceSide->switch_side();
     }
 
-    public function make(int $start_sq, int $end_sq) {
-        $bbs = $this->boardController->get_bbs();
+    public function make(int $start_sq, int $end_sq): array {
+        $bbs = $this->board->get_bbs();
 
         $start_piece = $this->get_piece_on_square($bbs, $start_sq);
         $end_piece = $this->get_piece_on_square($bbs, $end_sq);
@@ -33,20 +30,18 @@ class MoveMaker {
             return response(status: 500);
         }
 
-        $this->move_piece($bbs, $start_piece, $start_sq, $end_sq);
+        $bbs = $this->move_piece($bbs, $start_piece, $start_sq, $end_sq);
 
         if ($end_piece != -1) {
-            $bbs = $this->boardController->get_bbs();
-            $this->remove_piece($bbs, $end_piece, $end_sq);
+            $bbs = $this->remove_piece($bbs, $end_piece, $end_sq);
         }
 
         // Check for pawn promotion
         if ($this->is_pawn($start_piece) && $this->is_promotion_square($start_piece, $end_sq)) {
-            $bbs = $this->boardController->get_bbs();
-            $this->promote_pawn($bbs, $start_piece, $end_sq);
+            $bbs = $this->promote_pawn($bbs, $start_piece, $end_sq);
         }
 
-        $this->gameController->switch_side();
+        return $bbs;
     }
 
     /**
@@ -73,11 +68,12 @@ class MoveMaker {
      * @param int $start_sq The starting square.
      * @param int $end_sq The ending square.
      */
-    private function move_piece(array $bbs, int $piece, int $start_sq, int $end_sq): void {
+    private function move_piece(array $bbs, int $piece, int $start_sq, int $end_sq): array {
         $piece_bb = $bbs[$piece];
         $piece_bb ^= 1 << $start_sq;
         $piece_bb |= 1 << $end_sq;
-        $this->boardController->update($piece_bb, $piece);
+        $bbs[$piece] = $piece_bb;
+        return $bbs;
     }
 
     /**
@@ -87,10 +83,11 @@ class MoveMaker {
      * @param int $piece The piece to remove.
      * @param int $square The square to remove the piece from.
      */
-    private function remove_piece(array $bbs, int $piece, int $square): void {
+    private function remove_piece(array $bbs, int $piece, int $square): array {
         $piece_bb = $bbs[$piece];
         $piece_bb ^= 1 << $square;
-        $this->boardController->update($piece_bb, $piece);
+        $bbs[$piece] = $piece_bb;
+        return $bbs;
     }
 
     /**
@@ -123,15 +120,17 @@ class MoveMaker {
      * @param int $pawn The pawn piece.
      * @param int $square The square where the pawn is promoted.
      */
-    private function promote_pawn(array $bbs, int $pawn, int $square): void {
+    private function promote_pawn(array $bbs, int $pawn, int $square): array {
         // Remove the pawn from the board
-        $this->remove_piece($bbs, $pawn, $square);
+        $bbs = $this->remove_piece($bbs, $pawn, $square);
 
         // Add a queen to the board
         // Assuming 4 and 10 are the indices for white and black queens respectively
         $queen = $pawn == 0 ? 4 : 10;
         $piece_bb = $bbs[$queen];
         $piece_bb |= 1 << $square;
-        $this->boardController->update($piece_bb, $queen);
+        $bbs[$queen] = $piece_bb;
+
+        return $bbs;
     }
 }

@@ -12,7 +12,7 @@ class PieceImageController extends Controller {
      */
     public function index(): array {
         $base64_images = [];
-        $images = Storage::disk("public")->allFiles("images");
+        $images = Storage::disk("public")->allFiles("pieces");
 
         foreach ($images as $image) {
             // since the url is images/n.png where n is the piece(for example 1.png, 2.png, 3.png, etc)

@@ -6,19 +6,13 @@ import React, { ReactNode } from 'react';
 interface BoardProviderContextType {
     board: number[][];
     moves: MoveResponse[];
-    status: StatusResponse;
-    reload(): void;
+    refreshBoard(): void;
+    refreshMoves(): void;
 }
 
 interface MoveResponse {
     start: number;
     end: number;
-}
-
-interface StatusResponse {
-    win: boolean;
-    draw: boolean;
-    side: string;
 }
 
 const BoardProviderContext = createContext<
@@ -40,29 +34,23 @@ interface BoardProviderProps {
 }
 
 export const BoardProvider: React.FC<BoardProviderProps> = ({ children }) => {
-    const { data: response, mutate: mutateBoard } = useSWR<
+    const { data: response, mutate: refreshBoard } = useSWR<
         AxiosResponse<number[][]>
     >('/api/board/data', axios.get, { refreshInterval: 3000 });
 
-    const { data: moveResponse, mutate: mutateMoves } = useSWR<
+    const { data: moveResponse, mutate: refreshMoves } = useSWR<
         AxiosResponse<MoveResponse[]>
-    >('/api/moves/get', axios.get, { refreshInterval: 3000 });
-
-    const { data: boardStatusResponse } = useSWR<AxiosResponse<StatusResponse>>(
-        '/api/board/status',
-        axios.get,
-        { refreshInterval: 3000 },
-    );
+    >('/api/moves/get', axios.get, {
+        revalidateOnMount: false,
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+    });
 
     const [boardData, setBoardData] = useState<number[][] | undefined>(
         undefined,
     );
 
     const [moveData, setMoveData] = useState<MoveResponse[] | undefined>(
-        undefined,
-    );
-
-    const [boardStatus, setBoardStatus] = useState<StatusResponse | undefined>(
         undefined,
     );
 
@@ -74,22 +62,13 @@ export const BoardProvider: React.FC<BoardProviderProps> = ({ children }) => {
         setMoveData(moveResponse?.data);
     }, [moveResponse]);
 
-    useEffect(() => {
-        setBoardStatus(boardStatusResponse?.data);
-    }, [boardStatusResponse]);
-
-    const reload = () => {
-        mutateBoard();
-        mutateMoves();
-    };
-
     return (
         <BoardProviderContext.Provider
             value={{
                 board: boardData || [],
                 moves: moveData || [],
-                status: boardStatus || { win: false, draw: false, side: '' },
-                reload: reload,
+                refreshBoard: refreshBoard,
+                refreshMoves: refreshMoves,
             }}
         >
             <div>{children}</div>

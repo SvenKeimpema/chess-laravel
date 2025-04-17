@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\PieceMovement;
 
-use App\Http\Controllers\BoardController;
-use App\Http\Controllers\GameController;
 use App\Http\Controllers\PieceMovement\Math\BitboardOperations;
 use App\Http\Controllers\PieceMovement\Math\BlockersAndEnemiesCalculator;
 use App\Http\Controllers\PieceMovement\Pieces\Bishop;
@@ -18,9 +16,8 @@ class MoveGenerator {
     private Bishop $bishopGenerator;
     private Rook $rookGenerator;
     private King $kingGenerator;
-    private BoardController $boardController;
-    private GameController $gameController;
     private BlockersAndEnemiesCalculator $blockCalculator;
+    private PieceSide $pieceSide;
 
     function __construct() {
         $this->pawnGenerator = new Pawn();
@@ -28,9 +25,8 @@ class MoveGenerator {
         $this->bishopGenerator = new Bishop();
         $this->rookGenerator = new Rook();
         $this->kingGenerator = new King();
-        $this->boardController = new BoardController();
         $this->blockCalculator = new BlockersAndEnemiesCalculator();
-        $this->gameController = new GameController();
+        $this->pieceSide = new PieceSide();
     }
 
     /**
@@ -41,8 +37,7 @@ class MoveGenerator {
      */
     function generate_moves(array $board): array {
         $moves = [];
-
-        $side = $this->gameController->current_side();
+        $side = $this->pieceSide->current_side();
         $starting_piece = $side ? 0 : 6;
         $ending_piece = $side ? 6 : 12;
 
@@ -50,9 +45,33 @@ class MoveGenerator {
             $bb = $board[$piece];
             while ($bb !== 0) {
                 $sq = BitboardOperations::ls1b($bb);
-                $generated_moves = $this->generate_moves_for_piece($board, $piece);
+                $generated_moves = $this->generate_moves_for_piece($board, $piece, $side);
 
                 $moves = array_merge($moves, $generated_moves);
+                $bb ^= (1 << $sq);
+            }
+        }
+
+        return $moves;
+    }
+
+    public function generate_potential_check_moves(array $board, int $king_sq, bool $side) {
+        $moves = [];
+
+        $starting_piece = $side ? 0 : 5;
+        $ending_piece = $side ? 5 : 11;
+
+        for($piece = $starting_piece; $piece <= $ending_piece; $piece++) {
+            $bb = $board[$piece];
+            while ($bb !== 0) {
+                $sq = BitboardOperations::ls1b($bb);
+                $generated_moves = $this->generate_moves_for_piece($board, $piece, $side);
+                foreach($generated_moves as $move) {
+                    if($move->end == $king_sq) {
+                        $moves[] = $move;
+                    }
+                }
+
                 $bb ^= (1 << $sq);
             }
         }
@@ -67,10 +86,11 @@ class MoveGenerator {
      * @param int $piece The piece to generate moves for.
      * @return Move[] An array of generated moves.
      */
-    private function generate_moves_for_piece(array $board, int $piece): array {
-        $blockers = $this->blockCalculator->get_blockers($board);
-        $enemies = $this->blockCalculator->get_enemies($board);
+    private function generate_moves_for_piece(array $board, int $piece, bool $side): array {
+        $blockers = $this->blockCalculator->get_blockers($board, $side);
+        $enemies = $this->blockCalculator->get_enemies($board, $side);
         $moves = [];
+
 
         $bb = $board[$piece];
         while ($bb !== 0) {

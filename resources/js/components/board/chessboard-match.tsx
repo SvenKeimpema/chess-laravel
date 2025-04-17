@@ -3,6 +3,7 @@ import Square from '../square';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useDeepCompareEffect } from '@/hooks/use-deep-compare-effect';
+import useStatus from '@/hooks/use-status';
 
 interface ChessBoardProps {
     size: 'small' | 'medium' | 'large';
@@ -15,25 +16,28 @@ const sizeClasses = {
 };
 
 export default function ChessBoard({ size = 'medium' }: ChessBoardProps) {
-    const { board, moves, reload, status } = useBoardProvider();
+    const { board, moves, refreshBoard, refreshMoves } = useBoardProvider();
+
+    const { status, refreshStatus } = useStatus();
     const [selectedSquare, setSelectedSquare] = useState<number | null>(null);
     const [highlightedSquares, setHighlightedSquares] = useState<
         number[] | null
     >(null);
 
     useDeepCompareEffect(() => {
+        refreshMoves();
+        refreshStatus();
         setSelectedSquare(null);
         setHighlightedSquares([]);
     }, [board]);
 
-    const leaveMatch = async () => {
-        // await axios.post('/api/leave-match');
+    const endGame = async () => {
+        await axios.post('/api/end-game');
     };
 
     useEffect(() => {
-        console.log(status);
         if (status.win || status.draw) {
-            leaveMatch();
+            endGame();
         }
     }, [status]);
 
@@ -47,12 +51,16 @@ export default function ChessBoard({ size = 'medium' }: ChessBoardProps) {
             setSelectedSquare(null);
             setHighlightedSquares([]);
 
-            axios.post('/api/moves/make', {
-                startSquare: selectedSquare,
-                endSquare: square,
-            });
-
-            reload();
+            axios
+                .post('/api/moves/make', {
+                    startSquare: selectedSquare,
+                    endSquare: square,
+                })
+                .then(() => {
+                    refreshBoard();
+                    refreshStatus();
+                    refreshMoves();
+                });
 
             return;
         }
@@ -86,7 +94,6 @@ export default function ChessBoard({ size = 'medium' }: ChessBoardProps) {
             );
         }
     }
-
     return (
         <div className="relative">
             <div
@@ -94,22 +101,6 @@ export default function ChessBoard({ size = 'medium' }: ChessBoardProps) {
             >
                 {squares}
             </div>
-            {status.win && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white p-4 rounded shadow-lg">
-                        <h2 className="text-xl font-bold">Game Over</h2>
-                        <p>{status.side} wins!</p>
-                    </div>
-                </div>
-            )}
-            {status.draw && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white p-4 rounded shadow-lg">
-                        <h2 className="text-xl font-bold">Game Over</h2>
-                        <p>It's a draw!</p>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

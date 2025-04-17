@@ -13,13 +13,13 @@ use Illuminate\Notifications\Notifiable;
  * @property string $email
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder<static>|PieceBoard newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|PieceBoard newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|PieceBoard query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|PieceBoard whereBoard($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|PieceBoard whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|PieceBoard whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|PieceBoard whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereBoard($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class User extends Authenticatable

@@ -1,34 +1,26 @@
-import { useEffect, useState } from 'react';
-import useSWR from 'swr';
 import axios, { AxiosResponse } from 'axios';
 import ChessBoard from '@/components/board/chessboard-preview';
 import { ImageProvider } from '@/providers/ImageProvider';
+import echo from '@/echo';
+import { useEffect } from 'react';
+import Profile from '@/components/user/profile';
 
 export default function WaitScreen() {
-    const { data: response } = useSWR<AxiosResponse<number>>(
-        '/api/current-game',
-        axios.get,
-    );
-    const [currentGame, setCurrentGame] = useState<number | undefined>(
-        undefined,
-    );
-
     useEffect(() => {
-        setCurrentGame(response?.data);
-        if (currentGame != undefined) {
-            // @ts-expect-error we expect a error here since window.Echo is a javascript thing and cannot be loaded propperly otherwise
-            Window.Echo.private(`Game.${currentGame}`).listen(
-                'PlayerJoinedGame',
+        axios.get<AxiosResponse<number>>('/api/current-game').then((resp) => {
+            echo.channel(`Game.${resp.data}`).listen(
+                '.PlayerJoinedGame',
                 () => {
                     window.location.href = '/play/human';
                 },
             );
-        }
-    }, [response, currentGame]);
+        });
+    }, []);
 
     const backToHome = () => {
-        // home page will always be '/' so we don't need to overengineer this.
-        window.location.href = '/';
+        axios.post('/api/leave-match').then(() => {
+            window.location.href = '/';
+        });
     };
 
     return (
@@ -36,6 +28,7 @@ export default function WaitScreen() {
             className="relative min-h-screen flex flex-col items-center justify-center"
             style={{ backgroundColor: '#312e2b' }}
         >
+            <Profile />
             <div className="absolute bg-black opacity-30 w-full h-full z-0" />
             <div className="flex-grow flex items-center justify-center">
                 <ImageProvider>
