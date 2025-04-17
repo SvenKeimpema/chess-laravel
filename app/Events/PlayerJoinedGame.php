@@ -2,18 +2,20 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class PlayerJoinedGame implements ShouldBroadcast {
-       use Dispatchable, InteractsWithSockets, SerializesModels;
+class PlayerJoinedGame implements ShouldBroadcast
+{
+    use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * this is the id of the player that is currently inside of the matchmaking loop, we will create a channel for every player that is inside this matchmaking
-     * @var integer
+     *
+     * @var int
      */
     public $gameId;
 
@@ -27,7 +29,8 @@ class PlayerJoinedGame implements ShouldBroadcast {
         return 'PlayerJoinedGame';
     }
 
-    public function broadcastOn() {
-        return new Channel("Game." . $this->gameId);
+    public function broadcastOn()
+    {
+        return new Channel('Game.'.$this->gameId);
     }
 }

@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('user_games', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("user_id")->nullable()->references("id")->on("users");
-            $table->foreignId("game_id")->nullable()->references("id")->on("game");
-            $table->boolean("ended");
+            $table->foreignId('user_id')->nullable()->references('id')->on('users');
+            $table->foreignId('game_id')->nullable()->references('id')->on('game');
+            $table->boolean('ended');
             $table->timestamps();
         });
     }

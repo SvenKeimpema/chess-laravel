@@ -14,7 +14,7 @@ return new class extends Migration
         // creates a bitboard for each piece in a game, this does require us to store quite a lot of data however this will make performace stay pretty good
         Schema::create('piece_board', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("game_id")->nullable()->references("id")->on("game");
+            $table->foreignId('game_id')->nullable()->references('id')->on('game');
             $table->integer('board')->unsigned();
             $table->integer('piece')->unsigned();
             $table->timestamps();

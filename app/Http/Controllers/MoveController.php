@@ -14,25 +14,33 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
-class MoveController {
+class MoveController
+{
     private Board $board;
+
     private MoveGenerator $moveGenerator;
+
     private MoveMaker $moveMaker;
+
     private KingDangerFilter $kingDangerFilter;
+
     private GameController $gameController;
+
     private PieceSide $pieceSide;
 
-    function __construct() {
-        $this->board = new Board();
-        $this->moveGenerator = new MoveGenerator();
-        $this->moveMaker = new MoveMaker();
-        $this->gameController = new GameController();
-        $this->kingDangerFilter = new KingDangerFilter();
-        $this->pieceSide = new PieceSide();
+    public function __construct()
+    {
+        $this->board = new Board;
+        $this->moveGenerator = new MoveGenerator;
+        $this->moveMaker = new MoveMaker;
+        $this->gameController = new GameController;
+        $this->kingDangerFilter = new KingDangerFilter;
+        $this->pieceSide = new PieceSide;
     }
 
     // Returns all moves of the current board state
-    function get(): JsonResponse {
+    public function get(): JsonResponse
+    {
         $bbs = $this->board->get_bbs();
         $moves = $this->moveGenerator->generate_moves($bbs);
         $moves = $this->kingDangerFilter->filter($moves);
@@ -48,23 +56,24 @@ class MoveController {
     /**
      * Makes a move on the chessboard.
      *
-     * @param Request $request The HTTP request containing the start and end squares.
+     * @param  Request  $request  The HTTP request containing the start and end squares.
      * @return Response The HTTP response indicating the result of the move.
      */
-    function make(Request $request): Response {
-        if (!$this->gameController->current_turn()) {
+    public function make(Request $request): Response
+    {
+        if (! $this->gameController->current_turn()) {
             return response(status: 200);
         }
 
-        $game_id = UserGames::where("user_id", Auth::user()->id)->where("ended", false)->first()->game_id;
+        $game_id = UserGames::where('user_id', Auth::user()->id)->where('ended', false)->first()->game_id;
 
-        $start_sq = (int) $request->input("startSquare");
-        $end_sq = (int) $request->input("endSquare");
+        $start_sq = (int) $request->input('startSquare');
+        $end_sq = (int) $request->input('endSquare');
 
         $bbs = $this->moveMaker->make($start_sq, $end_sq);
         $this->pieceSide->switch_side();
         $piece = 0;
-        foreach($bbs as $bb) {
+        foreach ($bbs as $bb) {
             $this->update_board($game_id, $bb, $piece);
             $piece += 1;
         }
@@ -73,13 +82,13 @@ class MoveController {
     }
 
     /**
-    * Updates the board state by setting the bitboard for a specific piece.
-    *
-    * @param int $bb The bitboard representing the new position of the piece.
-    * @param int $piece The piece identifier (0-5 for white pieces, 6-11 for black pieces).
-    * @return void
-    */
-    public function update_board(int $game_id, int $bb, int $piece): void {
-        PieceBoard::where("piece", $piece)->where("game_id", $game_id)->update(["board" => $bb]);
+     * Updates the board state by setting the bitboard for a specific piece.
+     *
+     * @param  int  $bb  The bitboard representing the new position of the piece.
+     * @param  int  $piece  The piece identifier (0-5 for white pieces, 6-11 for black pieces).
+     */
+    public function update_board(int $game_id, int $bb, int $piece): void
+    {
+        PieceBoard::where('piece', $piece)->where('game_id', $game_id)->update(['board' => $bb]);
     }
 }

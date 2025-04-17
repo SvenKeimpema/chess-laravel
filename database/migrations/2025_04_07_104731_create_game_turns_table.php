@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('game_turns', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignId("game_id")->references("id")->on("game");
-            $table->foreignId("turn")->references("id")->on("users");
-            $table->boolean("side");
+            $table->foreignId('game_id')->references('id')->on('game');
+            $table->foreignId('turn')->references('id')->on('users');
+            $table->boolean('side');
         });
     }
 

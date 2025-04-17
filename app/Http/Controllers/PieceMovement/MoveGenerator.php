@@ -10,38 +10,47 @@ use App\Http\Controllers\PieceMovement\Pieces\Knight;
 use App\Http\Controllers\PieceMovement\Pieces\Pawn;
 use App\Http\Controllers\PieceMovement\Pieces\Rook;
 
-class MoveGenerator {
+class MoveGenerator
+{
     private Pawn $pawnGenerator;
+
     private Knight $knightGenerator;
+
     private Bishop $bishopGenerator;
+
     private Rook $rookGenerator;
+
     private King $kingGenerator;
+
     private BlockersAndEnemiesCalculator $blockCalculator;
+
     private PieceSide $pieceSide;
 
-    function __construct() {
-        $this->pawnGenerator = new Pawn();
-        $this->knightGenerator = new Knight();
-        $this->bishopGenerator = new Bishop();
-        $this->rookGenerator = new Rook();
-        $this->kingGenerator = new King();
-        $this->blockCalculator = new BlockersAndEnemiesCalculator();
-        $this->pieceSide = new PieceSide();
+    public function __construct()
+    {
+        $this->pawnGenerator = new Pawn;
+        $this->knightGenerator = new Knight;
+        $this->bishopGenerator = new Bishop;
+        $this->rookGenerator = new Rook;
+        $this->kingGenerator = new King;
+        $this->blockCalculator = new BlockersAndEnemiesCalculator;
+        $this->pieceSide = new PieceSide;
     }
 
     /**
      * Generates all possible moves for all pieces on the board.
      *
-     * @param array $board An array of bitboards representing the board state.
+     * @param  array  $board  An array of bitboards representing the board state.
      * @return array An array of generated moves.
      */
-    function generate_moves(array $board): array {
+    public function generate_moves(array $board): array
+    {
         $moves = [];
         $side = $this->pieceSide->current_side();
         $starting_piece = $side ? 0 : 6;
         $ending_piece = $side ? 6 : 12;
 
-        for($piece = $starting_piece; $piece < $ending_piece; $piece++) {
+        for ($piece = $starting_piece; $piece < $ending_piece; $piece++) {
             $bb = $board[$piece];
             while ($bb !== 0) {
                 $sq = BitboardOperations::ls1b($bb);
@@ -55,19 +64,20 @@ class MoveGenerator {
         return $moves;
     }
 
-    public function generate_potential_check_moves(array $board, int $king_sq, bool $side) {
+    public function generate_potential_check_moves(array $board, int $king_sq, bool $side)
+    {
         $moves = [];
 
         $starting_piece = $side ? 0 : 5;
         $ending_piece = $side ? 5 : 11;
 
-        for($piece = $starting_piece; $piece <= $ending_piece; $piece++) {
+        for ($piece = $starting_piece; $piece <= $ending_piece; $piece++) {
             $bb = $board[$piece];
             while ($bb !== 0) {
                 $sq = BitboardOperations::ls1b($bb);
                 $generated_moves = $this->generate_moves_for_piece($board, $piece, $side);
-                foreach($generated_moves as $move) {
-                    if($move->end == $king_sq) {
+                foreach ($generated_moves as $move) {
+                    if ($move->end == $king_sq) {
                         $moves[] = $move;
                     }
                 }
@@ -82,15 +92,15 @@ class MoveGenerator {
     /**
      * Generates all possible moves for a specific piece on the board.
      *
-     * @param array $board The current board state.
-     * @param int $piece The piece to generate moves for.
+     * @param  array  $board  The current board state.
+     * @param  int  $piece  The piece to generate moves for.
      * @return Move[] An array of generated moves.
      */
-    private function generate_moves_for_piece(array $board, int $piece, bool $side): array {
+    private function generate_moves_for_piece(array $board, int $piece, bool $side): array
+    {
         $blockers = $this->blockCalculator->get_blockers($board, $side);
         $enemies = $this->blockCalculator->get_enemies($board, $side);
         $moves = [];
-
 
         $bb = $board[$piece];
         while ($bb !== 0) {
@@ -135,15 +145,17 @@ class MoveGenerator {
     /**
      * Gets the square index of a bitboard.
      *
-     * @param int $bb The bitboard.
+     * @param  int  $bb  The bitboard.
      * @return int The square index.
      */
-    private function get_square(int $bb): int {
+    private function get_square(int $bb): int
+    {
         for ($i = 0; $i < 64; $i++) {
             if (($bb & (1 << $i)) != 0) {
                 return $i;
             }
         }
+
         return -1;
     }
 }

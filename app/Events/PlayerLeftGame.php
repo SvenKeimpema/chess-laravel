@@ -21,6 +21,6 @@ class PlayerLeftGame implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new Channel('game.' . $this->gameId);
+        return new Channel('game.'.$this->gameId);
     }
 }

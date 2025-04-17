@@ -9,34 +9,41 @@ use App\Http\Controllers\PieceMovement\MoveGenerator;
 use App\Http\Controllers\PieceMovement\MoveMaker;
 use App\Http\Controllers\PieceMovement\PieceSide;
 
-
 /**
-* if a move makes the king go into check, or the king stays in check, then we filter out the move
-*/
-class KingDangerFilter {
+ * if a move makes the king go into check, or the king stays in check, then we filter out the move
+ */
+class KingDangerFilter
+{
     private MoveMaker $moveMaker;
+
     private MoveGenerator $moveGenerator;
+
     private Board $board;
+
     private PieceSide $pieceSide;
 
-    function __construct() {
-        $this->moveMaker = new MoveMaker();
-        $this->moveGenerator = new MoveGenerator();
-        $this->board = new Board();
-        $this->pieceSide = new PieceSide();
+    public function __construct()
+    {
+        $this->moveMaker = new MoveMaker;
+        $this->moveGenerator = new MoveGenerator;
+        $this->board = new Board;
+        $this->pieceSide = new PieceSide;
     }
 
-    public function filter(array $moves): array {
+    public function filter(array $moves): array
+    {
         $valid_moves = [];
-        foreach($moves as $move) {
-            if($this->isSafeMove($move)) {
+        foreach ($moves as $move) {
+            if ($this->isSafeMove($move)) {
                 array_push($valid_moves, $move);
             }
         }
+
         return $valid_moves;
     }
 
-    private function isSafeMove(Move $move): bool {
+    private function isSafeMove(Move $move): bool
+    {
         $bbs = $this->board->get_bbs();
         $new_bbs = $this->moveMaker->make($move->start, $move->end, $bbs);
 
@@ -47,11 +54,11 @@ class KingDangerFilter {
         $king_sq = BitboardOperations::ls1b($king_bb);
 
         // Generate only the moves that can potentially put the king in check
-        $opponent_moves = $this->moveGenerator->generate_potential_check_moves($new_bbs, $king_sq, !$side);
+        $opponent_moves = $this->moveGenerator->generate_potential_check_moves($new_bbs, $king_sq, ! $side);
 
         // Check if any opponent move can capture the king
-        foreach($opponent_moves as $opponent_move) {
-            if($opponent_move->end == $king_sq) {
+        foreach ($opponent_moves as $opponent_move) {
+            if ($opponent_move->end == $king_sq) {
                 return false;
             }
         }

@@ -8,27 +8,29 @@ use Illuminate\Http\Request;
 
 class AvatarController extends Controller
 {
-    public function getAvatar() {
-        $avatar = Avatar::where("user_id", auth()->id())->first();
+    public function getAvatar()
+    {
+        $avatar = Avatar::where('user_id', auth()->id())->first();
 
-        if(!$avatar) {
-            $avatar = Avatar::where("user_id", null)->first();
+        if (! $avatar) {
+            $avatar = Avatar::where('user_id', null)->first();
         }
 
-        return response()->json(["avatar" => [
-            "image" => base64_encode($avatar->avatar)
+        return response()->json(['avatar' => [
+            'image' => base64_encode($avatar->avatar),
         ]]);
     }
 
-    public function uploadAvatar(Request $request) {
+    public function uploadAvatar(Request $request)
+    {
         $request->validate([
-            'avatar' => 'required|file|max:25600'
+            'avatar' => 'required|file|max:25600',
         ]);
 
         $uploadedFile = $request->file('avatar');
         $fileContents = file_get_contents($uploadedFile->getRealPath());
 
-        $avatar = new Avatar();
+        $avatar = new Avatar;
         $avatar->avatar = $fileContents;
         $avatar->user_id = auth()->id();
         $avatar->save();

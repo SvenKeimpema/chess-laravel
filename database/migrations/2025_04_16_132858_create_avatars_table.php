@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('avatars', function (Blueprint $table) {
             $table->id();
-            $table->binary("avatar");
-            $table->foreignId("user_id")->nullable()->references("id")->on("users");
+            $table->binary('avatar');
+            $table->foreignId('user_id')->nullable()->references('id')->on('users');
             $table->timestamps();
         });
     }
